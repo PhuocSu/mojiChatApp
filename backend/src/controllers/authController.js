@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import Session from "../models/Session.js";
 
-const ACCESS_TOKEN_TTL = '30m' ; //thường là dưới 15m
+const ACCESS_TOKEN_TTL = '30m'; //thường là dưới 15m
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; //14 days 24h 60 minutes 60 seconds 1000 milliseconds   
 
 export const signUp = async (req, res) => {
@@ -62,7 +62,7 @@ export const signIn = async (req, res) => {
             return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" }) //401: Unauthorized
         }
 
-            //kiểm tra password
+        //kiểm tra password
         const correctPassword = await bcrypt.compare(password, user.hashedPassword)
 
         if (!correctPassword) {
@@ -82,7 +82,7 @@ export const signIn = async (req, res) => {
 
         //tạo refresh token
         const refreshToken = crypto.randomBytes(64).toString('hex')
-        
+
 
         //tạo session mới để lưu refresh token => refToken thường lưu trong db
         //B1: tạo model Session.js
@@ -102,13 +102,56 @@ export const signIn = async (req, res) => {
         })
 
         //trả access token về trong res
-        return res.status(200).json({message: `User ${user.username} đã đăng nhập thành công!!!`
-            , accessToken})
+        return res.status(200).json({
+            message: `User ${user.username} đã đăng nhập thành công!!!`
+            , accessToken
+        })
 
     } catch (error) {
         console.error("Lỗi khi gọi signIn", error)
         return res.status(500).json({ message: "Lỗi hệ thống" })
     }
 }
+
+//nhớ import cookieParser trong server.js
+export const signOut = async (req, res) => {
+    try {
+        // Clear the refresh token cookie
+        // res.clearCookie('refreshToken', {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     path: '/api/auth/refresh-token'
+        // });
+
+        // // If you're using access token in cookies, clear that too
+        // res.clearCookie('accessToken', {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict'
+        // });
+
+        // res.status(200).json({ message: 'Đăng xuất thành công' });
+
+        //==========================================================================
+
+        //lấy refresh token từ cookie
+        const refreshToken = req.cookies?.refreshToken
+
+        if (refreshToken) {
+            //Xóa refreshToken trong cookies
+            await Session.deleteOne({ refreshToken }) //Hủy phiên đăng nhập người dùng trong database
+
+            //Xóa cookies
+            res.clearCookie("refreshToken")
+        }
+
+        return res.sendStatus(204)
+
+    } catch (error) {
+        console.error('Lỗi khi đăng xuất:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống' });
+    }
+};
 
 //có thể check trên jwt.io rồi dán accessToken và SecretKey vào để đối chiếu

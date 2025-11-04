@@ -4,6 +4,9 @@ import { connectDB } from "./libs/db.js";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -12,6 +15,11 @@ const PORT = process.env.PORT || 5001;
 
 //middlewares
 app.use(express.json());
+app.use(cookieParser())
+app.use(cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL
+}))
 
 //public route
 app.use("/api/auth", authRoute)

@@ -6,6 +6,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useNavigate } from "react-router";
 //zod-resolver giúp kết nối zod với react-hook-form
 //zod: kiêm tra dữ liệu, react-hook-form: thư viện để quản lý form (trạng thái và sự kiện của form)
 
@@ -23,12 +25,20 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<SignUpFormValues>({
+  const { signUp } = useAuthStore()
+  const navigate = useNavigate()
+
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema)
   })
 
   const onSubmit = async (data: SignUpFormValues) => {
-    //làm sau
+    const { firstname, lastname, username, email, password } = data
+
+    //gọi backend để signup
+    await signUp(username, password, email, firstname, lastname)
+
+    navigate("/signin")
   }
 
   return (
@@ -63,7 +73,7 @@ export function SignupForm({
                     placeholder="Nhập họ"
                     {...register("lastname")}
                   />
-                  
+
                   {
                     errors.lastname && (
                       <p className="text-destructive text-sm">
@@ -84,7 +94,7 @@ export function SignupForm({
                     placeholder="Nhập tên"
                     {...register("firstname")}
                   />
-                  
+
                   {
                     errors.firstname && (
                       <p className="text-destructive text-sm">
@@ -106,7 +116,7 @@ export function SignupForm({
                   placeholder="moji"
                   {...register("username")}
                 />
-                
+
                 {
                   errors.username && (
                     <p className="text-destructive text-sm">
@@ -127,7 +137,7 @@ export function SignupForm({
                   placeholder="m@gmail.com"
                   {...register("email")}
                 />
-                
+
                 {
                   errors.email && (
                     <p className="text-destructive text-sm">
@@ -147,7 +157,7 @@ export function SignupForm({
                   type="password"
                   {...register("password")}
                 />
-                
+
                 {
                   errors.password && (
                     <p className="text-destructive text-sm">
