@@ -10,6 +10,8 @@ export interface AuthState {
     signUp: (username: string, password: string, email: string, firstName: string, lastName: string) => Promise<void>
     signIn: (username: string, password: string) => Promise<void>
     signOut: () => Promise<void>
+    fetchMe: () => Promise<void>
+    refresh: () => Promise<void>
     //promise đại diện cho 1 thao tác bất đồng bộ, hoàn thành thì ko có giá trị trả về
 }
 

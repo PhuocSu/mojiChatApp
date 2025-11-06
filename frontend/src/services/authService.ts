@@ -37,7 +37,17 @@ export const authService = {
 
     signOut: async () => {
         return await api.post("/auth/signout", {}, { withCredentials: true })
-    }
+    },
+
+    fetchMe: async () => {
+        const res = await api.get("/users/me", { withCredentials: true })
+        return res.data.user
+    },
+
+    refresh: async () => {
+        const res = await api.post("/auth/refresh", {}, { withCredentials: true })
+        return res.data.accessToken
+    },
 }
 
 // authService.ts > useAuthStore.ts > store.ts > components/auth/signin-form.tsx

@@ -1,3 +1,4 @@
+//bản mô tả hình dạng (draft)
 export interface User {
     _id: string,
     username: string,

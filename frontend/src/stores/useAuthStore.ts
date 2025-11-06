@@ -8,6 +8,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     loading: false, //theo dói trang thái khi gọi API
 
+    setAccessToken: (accessToken: string) => {
+        set({ accessToken })
+    },
+
     clearState: () => {
         set({ accessToken: null, user: null, loading: false })
     },
@@ -34,13 +38,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({ loading: true })
 
             //gọi API
-            const accessToken = await authService.signIn(username, password)
-            set({ accessToken }) //cập nhật giá trị accesstoken trong store
+            const { accessToken } = await authService.signIn(username, password)
+            get().setAccessToken(accessToken)
+
+            await get().fetchMe()
 
             toast.success("Chào mừng bạn quay lại với Moji 🎉")
         } catch (error) {
             console.error(error)
             toast.error('Đăng nhập thất bại!')
+        } finally {
+            set({ loading: false })
         }
     },
 
@@ -53,6 +61,43 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (error) {
             console.error(error)
             toast.error("Đăng xuất thất bại! Hãy thử lại")
+        }
+    },
+
+    fetchMe: async () => {
+        try {
+            set({ loading: true })
+
+            const user = await authService.fetchMe()
+            set({ user })
+
+        } catch (error) {
+            console.error(error)
+            set({ user: null, accessToken: null })
+            toast.error("Lấy thông tin người dùng thất bại! Hãy thử lại")
+        } finally {
+            set({ loading: false })
+        }
+    },
+
+    refresh: async () => {
+        try {
+            set({ loading: true }) //baos cho ui biết chuẩn bị refresh token
+
+            const { user, fetchMe } = get() //lấy user trong stores
+            const accessToken = await authService.refresh()
+            get().setAccessToken(accessToken)
+
+            if (!user) {
+                await fetchMe()
+            }
+
+        } catch (error) {
+            console.error(error)
+            toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!")
+            get().clearState()
+        } finally {
+            set({ loading: false })
         }
     }
 

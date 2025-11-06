@@ -3,12 +3,13 @@ import SignInPage from "./pages/SignInPage.js"
 import SignUpPage from "./pages/SignUpPage.js"
 import ChatAppPage from "./pages/ChatAppPage.js"
 import { Toaster } from "sonner"
+import ProtectedRoute from "./components/auth/ProtectedRoute"
 
 function App() {
 
   return (
     <>
-      <Toaster richColors/>
+      <Toaster richColors />
       <BrowserRouter>
         <Routes>
 
@@ -17,7 +18,10 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
 
           {/* protected routes */}
-          <Route path="/" element={<ChatAppPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<ChatAppPage />} />
+          </Route>
+
         </Routes>
       </BrowserRouter>
     </>
