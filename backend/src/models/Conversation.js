@@ -1,0 +1,89 @@
+import mongoose from "mongoose"
+
+const participantSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, //khoá ngoại
+        ref: "User",
+        required: true
+    },
+    joinedAt: {
+        type: Date,
+        default: Date.now
+    }
+}, {
+    _id: false, //mongoose ko tạo ra id cho schema phụ
+})
+
+const groupSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        trim: true,
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }
+    //sau này: có thể lưu ảnh, ảnh nền
+}, {
+    _id: false
+})
+
+const lastMessageSchema = new mongoose.Schema({
+    _id: { type: String }, //id của tin nhắn gốc
+    content: {
+        type: String,
+        default: null
+    },
+    senderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    },
+    createdAt: {
+        type: Date,
+        default: null
+    }
+}, {
+    _id: false
+})
+
+const conversationSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ['direct', 'group'],
+        required: true
+    },
+    participants: {
+        type: [participantSchema],
+        required: true
+    },
+    group: {
+        type: groupSchema,
+        required: true
+    },
+    lastMessageAt: {
+        type: Date
+    },
+    sendBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
+    lastMessage: {
+        type: lastMessageSchema,
+        default: null
+    },
+    unreadCounts: {
+        type: Map,
+        of: Number,
+        default: {}
+    }
+}, {
+    timestamps: true
+})
+
+conversationSchema.index({
+    "participants.userId": 1,
+    lastMessageAt: -1
+})
+
+const Conversation = mongoose.model("Conversation", conversationSchema)
+export default Conversation
