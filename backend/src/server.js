@@ -6,6 +6,7 @@ import userRoute from "./routes/userRoute.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import friendRoute from "./routes/friendRoute.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -27,6 +28,7 @@ app.use("/api/auth", authRoute)
 //Private route
 app.use(protectedRoute)
 app.use("/api/users", userRoute)
+app.use("/api/friends", friendRoute)
 
 connectDB().then(() => {
     app.listen(PORT, () => {

@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             toast.success("Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập.")
         } catch (error) {
-            console.log(error)
+            console.error(error)
             toast.error("Đăng ký thất bại")
         } finally {
             set({ loading: false })
@@ -84,9 +84,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             set({ loading: true }) //baos cho ui biết chuẩn bị refresh token
 
-            const { user, fetchMe } = get() //lấy user trong stores
+            const { user, fetchMe, setAccessToken } = get() //lấy user trong stores
             const accessToken = await authService.refresh()
-            get().setAccessToken(accessToken)
+            setAccessToken(accessToken)
 
             if (!user) {
                 await fetchMe()
