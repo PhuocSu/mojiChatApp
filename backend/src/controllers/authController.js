@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import Session from "../models/Session.js";
 
-const ACCESS_TOKEN_TTL = '30s'; //thường là dưới 15m
+const ACCESS_TOKEN_TTL = '30m'; //thường là dưới 15m
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; //14 days 24h 60 minutes 60 seconds 1000 milliseconds   
 
 export const signUp = async (req, res) => {
