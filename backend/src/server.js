@@ -9,6 +9,9 @@ import cookieParser from "cookie-parser";
 import friendRoute from "./routes/friendRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import conversationRoute from "./routes/conversationRoute.js";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs"; //dọc dữ liệu Json
+
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,6 +26,12 @@ app.use(cors({
     credentials: true,
     origin: process.env.CLIENT_URL
 }))
+
+//Swagger
+const swaggerDocument = JSON.parse(fs.readFileSync("./src/swagger.json", 'utf8'))
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+
 
 //public route
 app.use("/api/auth", authRoute)
