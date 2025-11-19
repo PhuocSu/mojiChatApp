@@ -53,3 +53,32 @@ export const checkFriendship = async (req, res, next) => {
         return res.status(500).json({ message: "Lỗi hệ thống" })
     }
 }
+
+export const checkGroupMembership = async (req, res, next) => {
+    try {
+        const { conversationId } = req.body
+        const userId = req.user._id // truyền vào từ authenticationMiddleware
+
+        const conversation = await Conversation.findById(conversationId)
+        if (!conversation) {
+            return res.status(404).json({ message: "Không tìm thấy cuộc trò chuyện" })
+        }
+
+        const isMember = conversation.participants.some((participant) =>
+            participant.userId.toString() === userId.toString()) //dùng some để dò xem có người dùng nào trong cuộc trò chuyện không
+
+        if (!isMember) {
+            return res.status(403).json({ message: "Bạn không có quyền tham gia vào cuộc trò chuyện này" })
+        }
+
+        //nếu hợp lệ thì lưu conversation vào req
+        req.conversation = conversation
+
+        return next()
+
+
+    } catch (error) {
+        console.error("Lỗi khi checkGroupMembership: ", error)
+        return res.status(500).json({ message: "Lỗi hệ thống" })
+    }
+}

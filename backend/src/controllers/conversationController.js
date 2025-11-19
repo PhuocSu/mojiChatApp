@@ -131,8 +131,37 @@ export const getConversation = async (req, res) => {
 
 export const getMessages = async (req, res) => {
     try {
+        //cursor-based pagination: hiệu quả hơn nhiều
+        //phân trang tin nhắn hiển thị trong backend
+        const { conversationId } = req.params
+        const { limit = 50, cursor } = req.query //limit: số lượng tin nhắn, cursor: con trỏ của tin nhắn
+
+        const query = { conversationId }
+
+        if (cursor) {
+            query.createdAt = { $lt: new Date(cursor) } //chuyển cursor từ String sang Date 
+        }
+
+        let messages = await Message.find(query)
+            .sort({ createdAt: -1 })
+            .limit(Number(limit + 1)) //chuyển sang number. +1 là để kiểm tra còn tin nhắn nữa khong ở vị trí 51
+
+        let nextCursor = null
+
+        // Nếu có trang kế tiếp
+        if (messages.length > Number(limit)) {
+            const nextMessage = messages[messages.length - 1]
+            nextCursor = nextMessage.createdAt.toISOString() //đánh dấu vị trí của tin nhắn tiếp theo
+            messages.pop() //bỏ tin cuối cùng ra
+        }
+
+        //Vì database trả về tin mới nhất trước, nhưng UI cần hiển thị tin cũ → mới => reverse cũ lên trước
+        messages = messages.reverse()
+
+        return res.status(200).json({ messages, nextCursor })
 
     } catch (error) {
-
+        console.error("Lỗi khi lấy messages: ", error)
+        return res.status(500).json({ message: "Lỗi hệ thống" })
     }
 }
