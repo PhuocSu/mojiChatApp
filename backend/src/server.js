@@ -8,6 +8,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import friendRoute from "./routes/friendRoute.js";
 import messageRoute from "./routes/messageRoute.js";
+import conversationRoute from "./routes/conversationRoute.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(protectedRoute)
 app.use("/api/users", userRoute)
 app.use("/api/friends", friendRoute)
 app.use("/api/messages", messageRoute)
+app.use("/api/conversations", conversationRoute)
 
 connectDB().then(() => {
     app.listen(PORT, () => {

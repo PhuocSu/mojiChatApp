@@ -34,7 +34,7 @@ export const signUp = async (req, res) => {
             username,
             hashedPassword,
             email,
-            displayName: `${firstName} ${lastName}`
+            displayName: `${lastName} ${firstName}`
         })
 
         // Return 204 No Content
